@@ -75,6 +75,7 @@ class Tour_Agency {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+		$this->define_widget_hooks();
 
 	}
 
@@ -119,6 +120,11 @@ class Tour_Agency {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-tour-agency-public.php';
 
+		/**
+		 * The class responsible for defining all actions that occur in widgets.
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'shared/class-tour-agency-widget.php';
+
 		$this->loader = new Tour_Agency_Loader();
 
 	}
@@ -153,6 +159,8 @@ class Tour_Agency {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+
+		//$this->loader->add_action( 'init', $plugin_admin, 'new_cpt' );
 
 	}
 
@@ -211,5 +219,50 @@ class Tour_Agency {
 	public function get_version() {
 		return $this->version;
 	}
+
+
+	/**
+	 * Register all of the hooks shared between public-facing and admin functionality
+	 * of the plugin.
+	 *
+	 * @since 		1.0.0
+	 * @access 		private
+	 */
+	private function define_widget_hooks() {
+		$this->loader->add_action( 'widgets_init', $this, 'widgets_init' );
+		$this->loader->add_action( 'save_post_job', $this, 'flush_widget_cache' );
+		$this->loader->add_action( 'deleted_post', $this, 'flush_widget_cache' );
+		$this->loader->add_action( 'switch_theme', $this, 'flush_widget_cache' );
+	}
+
+	/**
+	 * Initialize this plugin's widgets.
+	 *
+	 * @since    1.0.0
+	 */
+	public function widgets_init() {
+		register_widget( 'my_widget' );
+	}
+
+
+	/**
+	 * Flushes widget cache
+	 *
+	 * @since 		1.0.0
+	 * @access 		public
+	 * @param 		int 		$post_id 		The post ID
+	 * @return 		void
+	 */
+	public function flush_widget_cache ( $post_id ) {
+		if ( wp_is_post_revision ( $post_id ) ) { return; }
+
+		$post = get_post_id( $post_id );
+
+		if ( $post->post_type == 'MYTHING' ) {
+			wp_cache_delete( $this->i18n, 'widget' );
+		}
+
+	}
+
 
 }

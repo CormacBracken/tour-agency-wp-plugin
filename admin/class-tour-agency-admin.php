@@ -100,4 +100,13 @@ class Tour_Agency_Admin {
 
 	}
 
+/*	public function new_cpt() {
+
+	$name = 'blah';
+	$opts['x'] = 3;
+	
+	register_post_type () ;
+
+	}*/
+
 }
