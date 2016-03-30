@@ -109,4 +109,84 @@ class Tour_Agency_Admin {
 
 	}*/
 
+	public function register_cpt_tour() {
+
+		$labels = array(
+			'name' => __( 'Tours', 'tour' ),
+			'singular_name' => __( 'Tour', 'tour' ),
+			'add_new' => __( 'Add New', 'tour' ),
+			'add_new_item' => __( 'Add New Tour', 'tour' ),
+			'edit_item' => __( 'Edit Tour', 'tour' ),
+			'new_item' => __( 'New Tour', 'tour' ),
+			'view_item' => __( 'View Tour', 'tour' ),
+			'search_items' => __( 'Search Tours', 'tour' ),
+			'not_found' => __( 'No tours found', 'tour' ),
+			'not_found_in_trash' => __( 'No tours found in Trash', 'tour' ),
+			'parent_item_colon' => __( 'Parent Tour:', 'tour' ),
+			'menu_name' => __( 'Tours', 'tour' ),
+		);
+
+		$args = array(
+			'labels' => $labels,
+			'hierarchical' => false,
+			'description' => 'Holds various details about tours.',
+			'supports' => array( 'editor', 'excerpt', 'author', 'thumbnail', 'custom-fields', 'comments', 'revisions', 'page-attributes' ),
+			'taxonomies' => array( 'tour_categories', 'tour_tags' ),
+			'public' => true,
+			'show_ui' => true,
+			'show_in_menu' => true,
+			'menu_position' => 5,
+			'menu_icon' => plugin_dir_url( __FILE__ ) . "images/tour-icon.png",
+			'show_in_nav_menus' => true,
+			'publicly_queryable' => true,
+			'exclude_from_search' => false,
+			'has_archive' => true,
+			'query_var' => true,
+			'can_export' => true,
+			'rewrite' => true,
+			'capability_type' => 'post'
+		);
+
+		register_post_type( 'tour', $args );
+	}
+
+
+	// Register Custom Taxonomy
+	function register_tax_tour_category() {
+
+		$labels = array(
+			'name'                       => _x( 'Tour Categories', 'Taxonomy General Name', 'tour-category' ),
+			'singular_name'              => _x( 'Tour Category', 'Taxonomy Singular Name', 'tour-category' ),
+			'menu_name'                  => __( 'Tour Category', 'tour-category' ),
+			'all_items'                  => __( 'All Tour Categories', 'tour-category' ),
+			'parent_item'                => __( 'Parent Item', 'tour-category' ),
+			'parent_item_colon'          => __( 'Parent Item:', 'tour-category' ),
+			'new_item_name'              => __( 'New tour category', 'tour-category' ),
+			'add_new_item'               => __( 'Add New Tour Category', 'tour-category' ),
+			'edit_item'                  => __( 'Edit Tour Category', 'tour-category' ),
+			'update_item'                => __( 'Update Tour Category', 'tour-category' ),
+			'view_item'                  => __( 'View Tour Category', 'tour-category' ),
+			'separate_items_with_commas' => __( 'Separate tour categories with commas', 'tour-category' ),
+			'add_or_remove_items'        => __( 'Add or remove tour categories', 'tour-category' ),
+			'choose_from_most_used'      => __( 'Choose from the most used', 'tour-category' ),
+			'popular_items'              => __( 'Popular Tour Categories', 'tour-category' ),
+			'search_items'               => __( 'Search Tour Categories', 'tour-category' ),
+			'not_found'                  => __( 'Not Found', 'tour-category' ),
+			'no_terms'                   => __( 'No tour categories', 'tour-category' ),
+			'items_list'                 => __( 'Tour Categories list', 'tour-category' ),
+			'items_list_navigation'      => __( 'Tour Categories list navigation', 'tour-category' ),
+		);
+		$args = array(
+			'labels'                     => $labels,
+			'hierarchical'               => true,
+			'public'                     => true,
+			'show_ui'                    => true,
+			'show_admin_column'          => true,
+			'show_in_nav_menus'          => true,
+			'show_tagcloud'              => true,
+		);
+		register_taxonomy( 'tour-category', array( 'tour' ), $args );
+
+	}
+
 }
