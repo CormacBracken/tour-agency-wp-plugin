@@ -74,7 +74,8 @@ class Tour_Agency_Admin {
 		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/tour-agency-admin.css', array(), $this->version, 'all' );
-
+		wp_enqueue_style( 'at-meta-box', plugin_dir_url( __FILE__ ) . 'css/meta-box.css', array(), $this->version, 'all' );
+		wp_enqueue_style('at-multiselect-select2-css', plugin_dir_url( __FILE__ ) . 'css/select2/select2.css', array(), $this->version, 'all');
 	}
 
 	/**
@@ -85,8 +86,6 @@ class Tour_Agency_Admin {
 	public function enqueue_scripts() {
 
 		/**
-		 * This function is provided for demonstration purposes only.
-		 *
 		 * An instance of this class should be passed to the run() function
 		 * defined in Tour_Agency_Loader as all of the hooks are defined
 		 * in that particular class.
@@ -97,6 +96,8 @@ class Tour_Agency_Admin {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/tour-agency-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( 'at-meta-box', plugin_dir_url( __FILE__ ) . 'js/meta-box.js', array( 'jquery' ), $this->version, false );
+    	wp_enqueue_script('at-multiselect-select2-js', plugin_dir_url( __FILE__ ) . 'js/select2/select2.js', array('jquery'), $this->version, false);
 
 	}
 
@@ -152,7 +153,7 @@ class Tour_Agency_Admin {
 
 
 	// Register Custom Taxonomy
-	function register_tax_tour_category() {
+	public function register_tax_tour_category() {
 
 		$labels = array(
 			'name'                       => _x( 'Tour Categories', 'Taxonomy General Name', 'tour-category' ),
@@ -188,5 +189,132 @@ class Tour_Agency_Admin {
 		register_taxonomy( 'tour-category', array( 'tour' ), $args );
 
 	}
+
+	// Custom tour descriptions metabox
+	public function create_tour_desc_metabox() {
+
+		$prefix = 'tour_desc_';
+		$config = array(
+			'id'             => 'tour_desc_metabox',
+			'title'          => 'Tour Descriptions',
+			'pages'          => array('tour'),
+			'context'        => 'normal',     // where the meta box appear: normal (default), advanced, side; optional
+			'priority'       => 'high',            // order of meta box: high (default), low; optional
+			'fields'         => array(),            // list of meta fields (can be added by field arrays)
+			'local_images'   => true,          // Use local or hosted images (meta box images for add/remove)
+			'use_with_theme' => false
+		);
+
+		$tour_desc_meta =  new AT_Meta_Box($config);
+
+		// Summary text field
+		$tour_desc_meta->addText( $prefix . 'summary', array( 'name' => 'Tour summary', 'style' => 'width: 50em;' ) );
+		// Short description - no field, use main content
+		// Long description wysiwyg field
+		$tour_desc_meta->addWysiwyg( $prefix . 'long', array( 'name' => 'Tour long description' ) );
+
+		// Highlights text area field
+		$tour_desc_meta->addTextarea( $prefix . 'highlights', array( 'name' => 'Tour highlights' ) );
+		
+		// Itinerary repeater text, text area fields
+		$itinerary_repeater[] = $tour_desc_meta->addText( $prefix . 'itinerary_title', array( 'name' => 'Itinerary item title e.g. Day 1', 'style' => 'width: 12em;' ), true );
+		$itinerary_repeater[] = $tour_desc_meta->addTextarea( $prefix . 'itinerary_desc', array( 'name'=> 'Itinerary item description', 'style' => 'width: 40em; height: 8em;' ), true );
+		$tour_desc_meta->addRepeaterBlock($prefix.'it_',array(
+			'inline'   => true, 
+			'name'     => 'Itinerary',
+			'fields'   => $itinerary_repeater, 
+			'sortable' => true
+		));
+
+		// Locations repeater.... lat/long or map?
+
+		// Essential info repeater text field
+		$essential_repeater[] = $tour_desc_meta->addText( $prefix . 'essential', array( 'name' => 'Essential item', 'style' => 'width: 50em;' ), true );
+		$tour_desc_meta->addRepeaterBlock($prefix.'ess_',array(
+			'inline'   => false, 
+			'name'     => 'Essential info',
+			'fields'   => $essential_repeater, 
+			'sortable' => true
+		));	
+
+		// Included repeater text field
+		$included_repeater[] = $tour_desc_meta->addText( $prefix . 'included', array( 'name' => 'Included item', 'style' => 'width: 50em;' ), true );
+		$tour_desc_meta->addRepeaterBlock($prefix.'inc_',array(
+			'inline'   => false, 
+			'name'     => 'Included in tour price',
+			'fields'   => $included_repeater, 
+			'sortable' => true
+		));	
+		// Excluded repeater text field
+		$excluded_repeater[] = $tour_desc_meta->addText( $prefix . 'excluded', array( 'name' => 'Excluded item', 'style' => 'width: 50em;' ), true );
+		$tour_desc_meta->addRepeaterBlock($prefix.'exc_',array(
+			'inline'   => false, 
+			'name'     => 'Excluded from tour price',
+			'fields'   => $excluded_repeater, 
+			'sortable' => true
+		));	
+
+		// Optional extras repeater text field
+		$optional_repeater[] = $tour_desc_meta->addText( $prefix . 'optional', array( 'name' => 'Optional item', 'style' => 'width: 50em;' ), true );
+		$tour_desc_meta->addRepeaterBlock($prefix.'opt_',array(
+			'inline'   => false, 
+			'name'     => 'Optional extras',
+			'fields'   => $optional_repeater, 
+			'sortable' => true
+		));	
+
+		// Restrictions  repeater text field
+		$restrictions_repeater[] = $tour_desc_meta->addText( $prefix . 'optional', array( 'name' => 'Restriction', 'style' => 'width: 50em;' ), true );
+		$tour_desc_meta->addRepeaterBlock($prefix.'res_',array(
+			'inline'   => false, 
+			'name'     => 'Restrictions',
+			'fields'   => $restrictions_repeater, 
+			'sortable' => true
+		));			
+
+		//Finish Meta Box Declaration 
+		$tour_desc_meta->Finish();
+
+	}
+
+	// Custom tour details metabox
+	public function create_tour_details_metabox() {
+
+		$prefix = 'tour_details_';
+		$config = array(
+			'id'             => 'tour_details_metabox',
+			'title'          => 'Tour Details',
+			'pages'          => array('tour'),
+			'context'        => 'side',     // where the meta box appear: normal (default), advanced, side; optional
+			'priority'       => 'high',            // order of meta box: high (default), low; optional
+			'fields'         => array(),            // list of meta fields (can be added by field arrays)
+			'local_images'   => true,          // Use local or hosted images (meta box images for add/remove)
+			'use_with_theme' => false
+		);
+
+		$tour_details_meta =  new AT_Meta_Box($config);
+
+		// From price text field
+		$tour_details_meta->addText( $prefix . 'from_price', array( 'name' => 'From price', 'style' => 'width: 16em' ) );
+		// Duration text field
+		$tour_details_meta->addText( $prefix . 'duration', array( 'name' => 'Duration', 'style' => 'width: 16em' ) );
+		// Availability text field
+		$tour_details_meta->addText( $prefix . 'availability', array( 'name' => 'Availability', 'style' => 'width: 16em' ) );
+		// Primary location text field
+		$tour_details_meta->addText( $prefix . 'location', array( 'name' => 'Primary location', 'style' => 'width: 16em' ) );
+		// Meals text field
+		$tour_details_meta->addText( $prefix . 'meals', array( 'name' => 'Meals', 'style' => 'width: 16em' ) );
+		// Hotel pickup text field
+		$tour_details_meta->addText( $prefix . 'pickup', array( 'name' => 'Hotel pickup', 'style' => 'width: 16em' ) );
+		// Booking t&c text field
+		$tour_details_meta->addText( $prefix . 'tandc', array( 'name' => 'Terms & conditions', 'style' => 'width: 16em' ) );
+		// Brochure file field
+		$tour_details_meta->addFile( $prefix . 'location', array( 'name' => 'Brochure' ) );
+
+		//Finish Meta Box Declaration 
+		$tour_details_meta->Finish();
+
+	}
+
 
 }

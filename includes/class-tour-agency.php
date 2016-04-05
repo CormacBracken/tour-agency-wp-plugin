@@ -115,6 +115,11 @@ class Tour_Agency {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-tour-agency-admin.php';
 
 		/**
+		 * The class responsible for defining custom metaboxes (admin area).
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/meta-box-classes.php';
+
+		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
@@ -162,6 +167,8 @@ class Tour_Agency {
 
 		$this->loader->add_action( 'init', $plugin_admin, 'register_cpt_tour' );
 		$this->loader->add_action( 'init', $plugin_admin, 'register_tax_tour_category' );
+		$this->loader->add_action( 'init', $plugin_admin, 'create_tour_desc_metabox' );
+		$this->loader->add_action( 'init', $plugin_admin, 'create_tour_details_metabox' );
 
 	}
 
@@ -231,9 +238,9 @@ class Tour_Agency {
 	 */
 	private function define_widget_hooks() {
 		$this->loader->add_action( 'widgets_init', $this, 'widgets_init' );
-		$this->loader->add_action( 'save_post_job', $this, 'flush_widget_cache' );
+		/*$this->loader->add_action( 'save_post_job', $this, 'flush_widget_cache' );
 		$this->loader->add_action( 'deleted_post', $this, 'flush_widget_cache' );
-		$this->loader->add_action( 'switch_theme', $this, 'flush_widget_cache' );
+		$this->loader->add_action( 'switch_theme', $this, 'flush_widget_cache' );*/
 	}
 
 	/**
