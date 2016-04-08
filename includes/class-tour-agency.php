@@ -101,34 +101,34 @@ class Tour_Agency {
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-tour-agency-loader.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-tour-agency-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-tour-agency-i18n.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-tour-agency-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-tour-agency-admin.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-tour-agency-admin.php';
 
 		/**
-		 * The class responsible for defining custom metaboxes (admin area).
+		 * The class responsible for initialising CMB2 custom metaboxes.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/meta-box-classes.php';
+		require_once plugin_dir_path( __DIR__ ) . 'shared/cmb2/init.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-tour-agency-public.php';
+		require_once plugin_dir_path( __DIR__ ) . 'public/class-tour-agency-public.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in widgets.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'shared/class-tour-agency-widget.php';
+		require_once plugin_dir_path( __DIR__ ) . 'shared/class-tour-agency-widget.php';
 
 		$this->loader = new Tour_Agency_Loader();
 
@@ -167,8 +167,8 @@ class Tour_Agency {
 
 		$this->loader->add_action( 'init', $plugin_admin, 'register_cpt_tour' );
 		$this->loader->add_action( 'init', $plugin_admin, 'register_tax_tour_category' );
-		$this->loader->add_action( 'init', $plugin_admin, 'create_tour_desc_metabox' );
-		$this->loader->add_action( 'init', $plugin_admin, 'create_tour_details_metabox' );
+		$this->loader->add_action( 'cmb2_admin_init', $plugin_admin, 'create_tour_desc_metabox' );
+		$this->loader->add_action( 'cmb2_admin_init', $plugin_admin, 'create_tour_details_metabox' );
 
 	}
 

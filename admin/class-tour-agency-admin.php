@@ -74,8 +74,7 @@ class Tour_Agency_Admin {
 		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/tour-agency-admin.css', array(), $this->version, 'all' );
-		wp_enqueue_style( 'at-meta-box', plugin_dir_url( __FILE__ ) . 'css/meta-box.css', array(), $this->version, 'all' );
-		wp_enqueue_style('at-multiselect-select2-css', plugin_dir_url( __FILE__ ) . 'css/select2/select2.css', array(), $this->version, 'all');
+
 	}
 
 	/**
@@ -96,19 +95,9 @@ class Tour_Agency_Admin {
 		 */
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/tour-agency-admin.js', array( 'jquery' ), $this->version, false );
-		wp_enqueue_script( 'at-meta-box', plugin_dir_url( __FILE__ ) . 'js/meta-box.js', array( 'jquery' ), $this->version, false );
-    	wp_enqueue_script('at-multiselect-select2-js', plugin_dir_url( __FILE__ ) . 'js/select2/select2.js', array('jquery'), $this->version, false);
 
 	}
 
-/*	public function new_cpt() {
-
-	$name = 'blah';
-	$opts['x'] = 3;
-	
-	register_post_type () ;
-
-	}*/
 
 	public function register_cpt_tour() {
 
@@ -190,90 +179,119 @@ class Tour_Agency_Admin {
 
 	}
 
+	
+	/**
+	 * Hook in and add a metabox 
+	 */
+
 	// Custom tour descriptions metabox
 	public function create_tour_desc_metabox() {
-
 		$prefix = 'tour_desc_';
-		$config = array(
-			'id'             => 'tour_desc_metabox',
-			'title'          => 'Tour Descriptions',
-			'pages'          => array('tour'),
-			'context'        => 'normal',     // where the meta box appear: normal (default), advanced, side; optional
-			'priority'       => 'high',            // order of meta box: high (default), low; optional
-			'fields'         => array(),            // list of meta fields (can be added by field arrays)
-			'local_images'   => true,          // Use local or hosted images (meta box images for add/remove)
-			'use_with_theme' => false
-		);
 
-		$tour_desc_meta =  new AT_Meta_Box($config);
+		/**
+		 * Metabox to be displayed on Tour editor page
+		 */
+		$cmb_tour_cpt = new_cmb2_box( array(
+			'id'           => $prefix . 'metabox',
+			'title'        => __( 'Tour Descriptions', 'tour-agency-admin' ),
+			'object_types' => array( 'tour', ), // Post type
+			'context'      => 'normal',
+			'priority'     => 'high',
+			'show_names'   => true // Show field names on the left
+		) );
 
 		// Summary text field
-		$tour_desc_meta->addText( $prefix . 'summary', array( 'name' => 'Tour summary', 'style' => 'width: 50em;' ) );
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Tour summary', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'summary',
+			'type' => 'text'
+		) );
+
 		// Short description - no field, use main content
 		// Long description wysiwyg field
-		$tour_desc_meta->addWysiwyg( $prefix . 'long', array( 'name' => 'Tour long description' ) );
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Tour long description', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'long',
+			'type' => 'wysiwyg',
+			'options' => array( 'textarea_rows' => 10, )
+		) );
 
 		// Highlights text area field
-		$tour_desc_meta->addTextarea( $prefix . 'highlights', array( 'name' => 'Tour highlights' ) );
-		
-		// Itinerary repeater text, text area fields
-		$itinerary_repeater[] = $tour_desc_meta->addText( $prefix . 'itinerary_title', array( 'name' => 'Itinerary item title e.g. Day 1', 'style' => 'width: 12em;' ), true );
-		$itinerary_repeater[] = $tour_desc_meta->addTextarea( $prefix . 'itinerary_desc', array( 'name'=> 'Itinerary item description', 'style' => 'width: 40em; height: 8em;' ), true );
-		$tour_desc_meta->addRepeaterBlock($prefix.'it_',array(
-			'inline'   => true, 
-			'name'     => 'Itinerary',
-			'fields'   => $itinerary_repeater, 
-			'sortable' => true
-		));
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Tour highlights', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'highlights',
+			'type' => 'textarea_small'
+		) );
 
+		// Itinerary repeater text, text area fields
+		$group_field_id = $cmb_tour_cpt->add_field( array(
+			'id'          => $prefix . 'itinerary_repeater',
+			'type'        => 'group',
+			'description' => __( 'Generates reusable form entries', 'tour-agency-admin' ),
+			'options'     => array(
+				'group_title'   => __( 'Entry {#}', 'tour-agency-admin' ), // {#} gets replaced by row number
+				'add_button'    => __( 'Add Another Entry', 'tour-agency-admin' ),
+				'remove_button' => __( 'Remove Entry', 'tour-agency-admin' ),
+				'sortable'      => true
+			),
+		) );
+
+		$cmb_tour_cpt->add_group_field( $group_field_id, array(
+			'name' => 'Itinerary Title',
+			'id'   => 'title',
+			'type' => 'text',
+		) );
+
+		$cmb_tour_cpt->add_group_field( $group_field_id, array(
+			'name' => 'Itinerary Description',
+			'id'   => 'description',
+			'type' => 'textarea',
+		) );
+		
 		// Locations repeater.... lat/long or map?
 
 		// Essential info repeater text field
-		$essential_repeater[] = $tour_desc_meta->addText( $prefix . 'essential', array( 'name' => 'Essential item', 'style' => 'width: 50em;' ), true );
-		$tour_desc_meta->addRepeaterBlock($prefix.'ess_',array(
-			'inline'   => false, 
-			'name'     => 'Essential info',
-			'fields'   => $essential_repeater, 
-			'sortable' => true
-		));	
+		$cmb_tour_cpt->add_field( array(
+			'name' => 'Essential Info',
+			'id'   => 'essential_info',
+			'type' => 'text',
+			'repeatable' => true
+		) );
 
 		// Included repeater text field
-		$included_repeater[] = $tour_desc_meta->addText( $prefix . 'included', array( 'name' => 'Included item', 'style' => 'width: 50em;' ), true );
-		$tour_desc_meta->addRepeaterBlock($prefix.'inc_',array(
-			'inline'   => false, 
-			'name'     => 'Included in tour price',
-			'fields'   => $included_repeater, 
-			'sortable' => true
-		));	
+		$cmb_tour_cpt->add_field( array(
+			'name' => 'Included',
+			'id'   => 'included_repeater',
+			'type' => 'text',
+			'repeatable' => true
+		) );
+
 		// Excluded repeater text field
-		$excluded_repeater[] = $tour_desc_meta->addText( $prefix . 'excluded', array( 'name' => 'Excluded item', 'style' => 'width: 50em;' ), true );
-		$tour_desc_meta->addRepeaterBlock($prefix.'exc_',array(
-			'inline'   => false, 
-			'name'     => 'Excluded from tour price',
-			'fields'   => $excluded_repeater, 
-			'sortable' => true
-		));	
+		$cmb_tour_cpt->add_field( array(
+			'name' => 'Excluded',
+			'id'   => 'excluded_repeater',
+			'type' => 'text',
+			'repeatable' => true
+		) );
 
 		// Optional extras repeater text field
-		$optional_repeater[] = $tour_desc_meta->addText( $prefix . 'optional', array( 'name' => 'Optional item', 'style' => 'width: 50em;' ), true );
-		$tour_desc_meta->addRepeaterBlock($prefix.'opt_',array(
-			'inline'   => false, 
-			'name'     => 'Optional extras',
-			'fields'   => $optional_repeater, 
-			'sortable' => true
-		));	
+		$cmb_tour_cpt->add_field( array(
+			'name' => 'Optional extras',
+			'id'   => 'optional_repeater',
+			'type' => 'text',
+			'repeatable' => true
+		) );		
 
 		// Restrictions  repeater text field
-		$restrictions_repeater[] = $tour_desc_meta->addText( $prefix . 'optional', array( 'name' => 'Restriction', 'style' => 'width: 50em;' ), true );
-		$tour_desc_meta->addRepeaterBlock($prefix.'res_',array(
-			'inline'   => false, 
-			'name'     => 'Restrictions',
-			'fields'   => $restrictions_repeater, 
-			'sortable' => true
-		));			
-
-		//Finish Meta Box Declaration 
-		$tour_desc_meta->Finish();
+		$cmb_tour_cpt->add_field( array(
+			'name' => 'Restrictions',
+			'id'   => 'restrictions_repeater',
+			'type' => 'text',
+			'repeatable' => true
+		) );		
 
 	}
 
@@ -281,40 +299,83 @@ class Tour_Agency_Admin {
 	public function create_tour_details_metabox() {
 
 		$prefix = 'tour_details_';
-		$config = array(
-			'id'             => 'tour_details_metabox',
-			'title'          => 'Tour Details',
-			'pages'          => array('tour'),
-			'context'        => 'side',     // where the meta box appear: normal (default), advanced, side; optional
-			'priority'       => 'high',            // order of meta box: high (default), low; optional
-			'fields'         => array(),            // list of meta fields (can be added by field arrays)
-			'local_images'   => true,          // Use local or hosted images (meta box images for add/remove)
-			'use_with_theme' => false
-		);
 
-		$tour_details_meta =  new AT_Meta_Box($config);
+		/**
+		 * Metabox to be displayed on Tour editor page
+		 */
+		$cmb_tour_cpt = new_cmb2_box( array(
+			'id'           => $prefix . 'metabox',
+			'title'        => __( 'Tour Details', 'tour-agency-admin' ),
+			'object_types' => array( 'tour' ),
+			'context'      => 'side',
+			'priority'     => 'high',
+			'show_names'   => true
+		) );
 
 		// From price text field
-		$tour_details_meta->addText( $prefix . 'from_price', array( 'name' => 'From price', 'style' => 'width: 16em' ) );
-		// Duration text field
-		$tour_details_meta->addText( $prefix . 'duration', array( 'name' => 'Duration', 'style' => 'width: 16em' ) );
-		// Availability text field
-		$tour_details_meta->addText( $prefix . 'availability', array( 'name' => 'Availability', 'style' => 'width: 16em' ) );
-		// Primary location text field
-		$tour_details_meta->addText( $prefix . 'location', array( 'name' => 'Primary location', 'style' => 'width: 16em' ) );
-		// Meals text field
-		$tour_details_meta->addText( $prefix . 'meals', array( 'name' => 'Meals', 'style' => 'width: 16em' ) );
-		// Hotel pickup text field
-		$tour_details_meta->addText( $prefix . 'pickup', array( 'name' => 'Hotel pickup', 'style' => 'width: 16em' ) );
-		// Booking t&c text field
-		$tour_details_meta->addText( $prefix . 'tandc', array( 'name' => 'Terms & conditions', 'style' => 'width: 16em' ) );
-		// Brochure file field
-		$tour_details_meta->addFile( $prefix . 'location', array( 'name' => 'Brochure' ) );
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'From Price', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'from_price',
+			'type' => 'text'
+		) );
 
-		//Finish Meta Box Declaration 
-		$tour_details_meta->Finish();
+		// Duration text field
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Duration', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'duration',
+			'type' => 'text'
+		) );
+
+		// Availability text field
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Availability', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'availability',
+			'type' => 'text'
+		) );
+
+		// Primary location text field
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Primary location', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'primary_location',
+			'type' => 'text'
+		) );
+
+		// Meals text field
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Meals', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'meals',
+			'type' => 'text'
+		) );
+
+		// Hotel pickup text field
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Hotel pickup', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'hotel_pickup',
+			'type' => 'text'
+		) );
+
+		// Booking t&c text field
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Booking Terms & Conditions', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'booking_tc',
+			'type' => 'text'
+		) );
+
+		// Brochure file field
+		$cmb_tour_cpt->add_field( array(
+			'name' => __( 'Brochure', 'tour-agency-admin' ),
+			'desc' => __( 'field description (optional)', 'tour-agency-admin' ),
+			'id'   => $prefix . 'brochure',
+			'type' => 'file'
+		) );
 
 	}
-
 
 }
