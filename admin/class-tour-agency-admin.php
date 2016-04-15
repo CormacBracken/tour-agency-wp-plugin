@@ -251,7 +251,17 @@ class Tour_Agency_Admin {
 			'type' => 'textarea',
 		) );
 		
-		// Locations repeater.... lat/long or map?
+		// Locations repeater
+		$cmb_tour_cpt->add_field( array(
+			'name' => 'Locations Map',
+			'desc' => 'Drag the marker to set the exact location',
+			'id' => $prefix . 'locations_map',
+			'type' => 'cb_multimap',
+			'repeatable' => true,
+			'before_row'   => '<div class="cmb-type-cb-multimap"><div class="cb-multimap"></div><!-- CODE IN CTA ADMIN -->',
+			'after_row' => '</div><!-- CLOSE BEFORE/AFTER IN CTA ADMIN -->',
+			'split_values' => true, // Save latitude and longitude as two separate fields
+		) );
 
 		// Essential info repeater text field
 		$cmb_tour_cpt->add_field( array(
@@ -376,6 +386,6 @@ class Tour_Agency_Admin {
 			'type' => 'file'
 		) );
 
-	}
+	}	
 
 }

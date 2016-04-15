@@ -288,7 +288,6 @@ class CMB2_Types {
 
 		$this->_desc( true, true, true );
 		?>
-
 		<div id="<?php echo $table_id; ?>" class="cmb-repeat-table cmb-nested">
 			<div class="cmb-tbody cmb-field-list">
 				<?php $this->repeatable_rows(); ?>
@@ -348,7 +347,6 @@ class CMB2_Types {
 	protected function repeat_row( $disable_remover = false, $class = 'cmb-repeat-row' ) {
 		$disabled = $disable_remover ? ' button-disabled' : '';
 		?>
-
 		<div class="cmb-row <?php echo $class; ?>">
 			<div class="cmb-td">
 				<?php $this->_render(); ?>
@@ -357,7 +355,6 @@ class CMB2_Types {
 				<button type="button" class="button cmb-remove-row-button<?php echo $disabled; ?>"><?php echo esc_html( $this->_text( 'remove_row_text', __( 'Remove', 'cmb2' ) ) ); ?></button>
 			</div>
 		</div>
-
 		<?php
 	}
 

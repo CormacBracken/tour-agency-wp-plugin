@@ -120,6 +120,11 @@ class Tour_Agency {
 		require_once plugin_dir_path( __DIR__ ) . 'shared/cmb2/init.php';
 
 		/**
+		 * The class responsible for initialising CMB2 multimap type (custom made)
+		 */
+		require_once plugin_dir_path( __DIR__ ) . 'shared/cmb2/cmb-field-multimap.php';
+
+		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
@@ -169,6 +174,8 @@ class Tour_Agency {
 		$this->loader->add_action( 'init', $plugin_admin, 'register_tax_tour_category' );
 		$this->loader->add_action( 'cmb2_admin_init', $plugin_admin, 'create_tour_desc_metabox' );
 		$this->loader->add_action( 'cmb2_admin_init', $plugin_admin, 'create_tour_details_metabox' );
+		//$this->loader->add_filter( 'cmb2_cb_multimap_attributes', $plugin_admin, 'dostuff');
+
 
 	}
 

@@ -1,0 +1,10 @@
+.cb-multimap {
+	height: 400px;
+	width: 99%;
+	margin: 5px 1px 1px;
+	border: solid 1px #DDD;
+	box-sizing: border-box;
+}
+.cb-multimap img {
+	max-width: none;
+}
